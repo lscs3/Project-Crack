@@ -1,0 +1,33 @@
+-- Aimbot Script
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+local LocalPlayer = Players.LocalPlayer
+local Mouse = LocalPlayer:GetMouse()
+local Camera = workspace.CurrentCamera
+
+local function getClosestPlayer()
+    local closestPlayer = nil
+    local shortestDistance = math.huge
+    
+    for i, player in pairs(Players:GetPlayers()) do
+        if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+            local pos = Camera:WorldToViewportPoint(player.Character.HumanoidRootPart.Position)
+            local magnitude = (Vector2.new(pos.X, pos.Y) - Vector2.new(Mouse.X, Mouse.Y)).magnitude
+            
+            if magnitude < shortestDistance then
+                closestPlayer = player
+                shortestDistance = magnitude
+            end
+        end
+    end
+    
+    return closestPlayer
+end
+
+RunService.RenderStepped:Connect(function()
+    local target = getClosestPlayer()
+    if target and UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton2) then
+        Camera.CFrame = CFrame.new(Camera.CFrame.Position, target.Character.Head.Position)
+    end
+end)
